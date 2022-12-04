@@ -12,6 +12,7 @@
 
 byte z, c;
 int x, y;
+int z_hold;
 
 void setup()
 {
@@ -31,29 +32,26 @@ void loop()
     c = Nunchuck.button_c(); 
 
     if (abs(x) > 3 || abs(y) > 3) {
-      Mouse.move(x, y, 0);
+      if (z)
+        Mouse.move(0, 0, y > 0 ? -1 : 1);
+      else
+        Mouse.move(x, y, 0);
     }
 
     if (c) {
-      if (!Mouse.isPressed(MOUSE_LEFT)) {
-        Mouse.press(MOUSE_LEFT);
+      if (!Mouse.isPressed(MOUSE_RIGHT) || !Mouse.isPressed(MOUSE_LEFT)) {
+        if (z)
+          Mouse.press(MOUSE_RIGHT);
+        else
+          Mouse.press(MOUSE_LEFT);
       }
     } else {
-      if (Mouse.isPressed(MOUSE_LEFT)) {
+      if (Mouse.isPressed(MOUSE_RIGHT)) 
+        Mouse.release(MOUSE_RIGHT);
+      else if (Mouse.isPressed(MOUSE_LEFT))
         Mouse.release(MOUSE_LEFT);
-      }
     }
     
-    if (z) {
-      if (!Mouse.isPressed(MOUSE_RIGHT)) {
-        Mouse.press(MOUSE_RIGHT);
-      }
-    } else {
-      if (Mouse.isPressed(MOUSE_RIGHT)) {
-        Mouse.release(MOUSE_RIGHT);
-      }
-    }
-
     Serial.print("x: "); Serial.print(x, DEC);
     Serial.print("\ty: "); Serial.print(y, DEC);
     Serial.print("\tz: "); Serial.print((byte)z, DEC);
