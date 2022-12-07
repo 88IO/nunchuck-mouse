@@ -1,18 +1,12 @@
-/*
- * WiiChuckDemo -- 
- *
- * 2008 Tod E. Kurt, http://thingm.com/
- *
- */
-
 #include <Arduino.h>
 #include <Wire.h>
 #include <Mouse.h>
 #include "Nunchuck.h"
 
+#define SCROLL_THRESHOLD 64
 byte z, c;
 int x, y;
-int z_hold;
+int scroll;
 
 void setup()
 {
@@ -32,10 +26,15 @@ void loop()
     c = Nunchuck.button_c(); 
 
     if (abs(x) > 3 || abs(y) > 3) {
-      if (z)
-        Mouse.move(0, 0, y > 0 ? -1 : 1);
-      else
+      if (z) {
+        scroll -= y;
+        Mouse.move(0, 0, scroll / SCROLL_THRESHOLD);
+        scroll %= SCROLL_THRESHOLD;
+      } else {
         Mouse.move(x, y, 0);
+      }
+    } else {
+      scroll = 0;
     }
 
     if (c) {
@@ -55,7 +54,8 @@ void loop()
     Serial.print("x: "); Serial.print(x, DEC);
     Serial.print("\ty: "); Serial.print(y, DEC);
     Serial.print("\tz: "); Serial.print((byte)z, DEC);
-    Serial.print("\tc: "); Serial.println((byte)c, DEC);    
+    Serial.print("\tc: "); Serial.print((byte)c, DEC);    
+    Serial.print("\tscroll: "); Serial.println(scroll, DEC);  
   }
 
   delay(25);
